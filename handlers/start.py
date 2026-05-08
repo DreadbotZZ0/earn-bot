@@ -47,8 +47,7 @@ async def cmd_start(message: Message):
     text = (
         "👋 <b>Добро пожаловать!</b>\n\n"
         "Зарабатывай деньги за:\n"
-        "📢 Подписку на каналы — <b>1 000₸</b> за каждый\n"
-        "👥 Приглашение друзей — <b>500₸</b> за каждого\n\n"
+        "👥 Приглашение друзей — <b>1 000₸</b> за каждого\n\n"
         "Выбери действие:"
     )
     await message.answer(text, reply_markup=main_menu(), parse_mode="HTML")
@@ -57,9 +56,8 @@ async def cmd_start(message: Message):
 async def go_main_menu(call: CallbackQuery):
     text = (
         "👋 <b>Главное меню</b>\n\n"
-        "📢 Подписка на канал — <b>1 000₸</b>\n"
-        "👥 Приглашение друга — <b>500₸</b>\n"
-        "💸 Минимальный вывод: <b>10 000₸</b>\n\n"
+        "👥 Приглашение друга — <b>1 000₸</b>\n"
+        "💸 Минимальный вывод: <b>5 000₸</b>\n\n"
         "Выбери действие:"
     )
     await call.message.edit_text(text, reply_markup=main_menu(), parse_mode="HTML")
