@@ -4,8 +4,7 @@ def main_menu():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="💰 Баланс", callback_data="balance"),
          InlineKeyboardButton(text="📋 Задания", callback_data="tasks")],
-        [InlineKeyboardButton(text="👥 Рефералы", callback_data="referrals"),
-         InlineKeyboardButton(text="💸 Вывести", callback_data="withdraw")],
+        [InlineKeyboardButton(text="💸 Вывести", callback_data="withdraw")],
     ])
 
 def back_btn():

@@ -3,9 +3,9 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from database import get_user, deduct_balance, create_withdrawal, get_referral_count
+from database import get_user, deduct_balance, create_withdrawal
 from keyboards.main import back_btn, main_menu
-from config import MIN_WITHDRAW, ADMIN_ID, MIN_REFS_TO_WITHDRAW, REQUIRED_CHANNEL
+from config import MIN_WITHDRAW, ADMIN_ID, REQUIRED_CHANNEL, REQUIRED_CHANNEL_LINK
 
 router = Router()
 
@@ -16,20 +16,19 @@ class WithdrawStates(StatesGroup):
 async def show_withdraw(call: CallbackQuery, state: FSMContext, bot: Bot):
     user = get_user(call.from_user.id)
     balance = user["balance"]
-    refs = get_referral_count(call.from_user.id)
 
-    # Шаг 1: проверка рефералов
-    if refs < MIN_REFS_TO_WITHDRAW:
-        need = MIN_REFS_TO_WITHDRAW - refs
+    # Шаг 1: проверка баланса
+    if balance < MIN_WITHDRAW:
+        need = MIN_WITHDRAW - balance
         bot_info = await bot.get_me()
         ref_link = f"https://t.me/{bot_info.username}?start={call.from_user.id}"
         text = (
             f"💸 <b>Вывод средств</b>\n\n"
-            f"Для вывода нужно пригласить <b>{MIN_REFS_TO_WITHDRAW} друзей</b>\n\n"
-            f"👥 Приглашено: <b>{refs}/{MIN_REFS_TO_WITHDRAW}</b>\n"
-            f"{'▓' * refs}{'░' * (MIN_REFS_TO_WITHDRAW - refs)} {refs}/{MIN_REFS_TO_WITHDRAW}\n\n"
-            f"Осталось пригласить: <b>{need}</b>\n\n"
-            f"🔗 Твоя ссылка:\n<code>{ref_link}</code>"
+            f"Твой баланс: <b>{balance:,}₸</b>\n"
+            f"Минимальный вывод: <b>{MIN_WITHDRAW:,}₸</b>\n\n"
+            f"❌ Нужно ещё <b>{need:,}₸</b>\n\n"
+            f"Приглашай друзей по ссылке и получай <b>1 000₸</b> за каждого:\n"
+            f"<code>{ref_link}</code>"
         )
         await call.message.edit_text(text, reply_markup=back_btn(), parse_mode="HTML")
         await call.answer()
@@ -44,13 +43,13 @@ async def show_withdraw(call: CallbackQuery, state: FSMContext, bot: Bot):
 
     if not is_member:
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📢 Вступить в канал", url=f"https://t.me/+{str(REQUIRED_CHANNEL)[4:]}")],
+            [InlineKeyboardButton(text="📢 Вступить в канал", url=REQUIRED_CHANNEL_LINK)],
             [InlineKeyboardButton(text="✅ Я подписался", callback_data="withdraw")],
             [InlineKeyboardButton(text="⬅️ Назад", callback_data="main_menu")],
         ])
         text = (
             f"💸 <b>Вывод средств</b>\n\n"
-            f"✅ Рефералов: <b>{refs}/{MIN_REFS_TO_WITHDRAW}</b> — выполнено!\n\n"
+            f"✅ Баланс: <b>{balance:,}₸</b> — достаточно!\n\n"
             f"Последний шаг — вступи в наш канал,\n"
             f"чтобы получить вывод 💰"
         )
@@ -58,27 +57,11 @@ async def show_withdraw(call: CallbackQuery, state: FSMContext, bot: Bot):
         await call.answer()
         return
 
-    # Шаг 3: проверка баланса
-    if balance < MIN_WITHDRAW:
-        need = MIN_WITHDRAW - balance
-        text = (
-            f"💸 <b>Вывод средств</b>\n\n"
-            f"✅ Рефералов: <b>{refs}/{MIN_REFS_TO_WITHDRAW}</b>\n"
-            f"✅ Канал: подписан\n\n"
-            f"Твой баланс: <b>{balance:,}₸</b>\n"
-            f"Минимальный вывод: <b>{MIN_WITHDRAW:,}₸</b>\n\n"
-            f"❌ Нужно ещё <b>{need:,}₸</b> — приглашай друзей!"
-        )
-        await call.message.edit_text(text, reply_markup=back_btn(), parse_mode="HTML")
-        await call.answer()
-        return
-
     # Всё ок — запрашиваем карту
     text = (
         f"💸 <b>Вывод средств</b>\n\n"
-        f"✅ Рефералов: <b>{refs}/{MIN_REFS_TO_WITHDRAW}</b>\n"
-        f"✅ Канал: подписан\n"
-        f"✅ Баланс: <b>{balance:,}₸</b>\n\n"
+        f"✅ Баланс: <b>{balance:,}₸</b>\n"
+        f"✅ Канал: подписан\n\n"
         f"Введи номер карты для перевода:"
     )
     await call.message.edit_text(text, reply_markup=back_btn(), parse_mode="HTML")
