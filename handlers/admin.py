@@ -201,6 +201,24 @@ async def reject_withdrawal(call: CallbackQuery):
     await call.message.edit_text(f"❌ Заявка #{wid} отклонена, деньги возвращены.")
     await call.answer()
 
+# Add balance (for testing)
+@router.message(Command("addbalance"))
+async def cmd_addbalance(message: Message):
+    if not is_admin(message.from_user.id):
+        return
+    parts = message.text.split()
+    if len(parts) != 3:
+        await message.answer("Использование: /addbalance <tg_id> <сумма>")
+        return
+    try:
+        tg_id = int(parts[1])
+        amount = int(parts[2])
+    except ValueError:
+        await message.answer("❌ Неверный формат. Пример: /addbalance 123456789 5000")
+        return
+    add_balance(tg_id, amount)
+    await message.answer(f"✅ Начислено <b>{amount:,}₸</b> пользователю <code>{tg_id}</code>", parse_mode="HTML")
+
 # Broadcast
 @router.message(Command("broadcast"))
 async def cmd_broadcast(message: Message):
