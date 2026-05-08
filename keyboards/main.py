@@ -1,4 +1,15 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+
+def reply_menu():
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="💰 Баланс"), KeyboardButton(text="📋 Задания")],
+            [KeyboardButton(text="💸 Вывести")],
+        ],
+        resize_keyboard=True,
+        persistent=True,
+        input_field_placeholder="Выбери действие..."
+    )
 
 def main_menu():
     return InlineKeyboardMarkup(inline_keyboard=[
