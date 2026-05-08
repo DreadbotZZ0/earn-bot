@@ -210,12 +210,14 @@ async def cmd_broadcast(message: Message):
     if not text:
         await message.answer("Использование: /broadcast Текст сообщения")
         return
+    import asyncio
     users = get_all_users()
     sent = 0
     for uid in users:
         try:
             await message.bot.send_message(uid, text)
             sent += 1
+            await asyncio.sleep(0.05)
         except Exception:
             pass
     await message.answer(f"✅ Отправлено {sent} из {len(users)} пользователей.")
