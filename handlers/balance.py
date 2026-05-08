@@ -7,13 +7,17 @@ router = Router()
 
 @router.callback_query(F.data == "balance")
 async def show_balance(call: CallbackQuery):
+    from config import MIN_REFS_TO_WITHDRAW, MIN_WITHDRAW
     user = get_user(call.from_user.id)
     refs = get_referral_count(call.from_user.id)
+    refs_done = min(refs, MIN_REFS_TO_WITHDRAW)
+    bar = '▓' * refs_done + '░' * (MIN_REFS_TO_WITHDRAW - refs_done)
     text = (
         f"💰 <b>Твой баланс</b>\n\n"
-        f"На счёте: <b>{user['balance']:,}₸</b>\n"
-        f"👥 Приглашено друзей: <b>{refs}</b>\n\n"
-        f"Минимальный вывод: <b>10 000₸</b>"
+        f"На счёте: <b>{user['balance']:,}₸</b>\n\n"
+        f"👥 Рефералов для вывода:\n"
+        f"{bar} {refs_done}/{MIN_REFS_TO_WITHDRAW}\n\n"
+        f"💸 Минимальный вывод: <b>{MIN_WITHDRAW:,}₸</b>"
     )
     await call.message.edit_text(text, reply_markup=back_btn(), parse_mode="HTML")
     await call.answer()
